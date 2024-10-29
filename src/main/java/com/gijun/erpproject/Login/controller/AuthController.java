@@ -1,7 +1,9 @@
 package com.gijun.erpproject.Login.controller;
 
+import com.gijun.erpproject.Login.JwtTokenProvider;
 import com.gijun.erpproject.Login.Request.LoginRequest;
 import com.gijun.erpproject.Login.Response.TokenResponse;
+import com.gijun.erpproject.Login.Response.TokenValidationResponse;
 import com.gijun.erpproject.Login.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -9,10 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "Authentication", description = "인증 관련 API")
 @RestController
@@ -21,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final AuthService authService;
+    private final JwtTokenProvider jwtTokenProvider;
 
     @Operation(summary = "로그인", description = "username과 password를 이용해 로그인합니다.")
     @PostMapping("/login")
@@ -55,6 +55,20 @@ public class AuthController {
             ip = request.getRemoteAddr();
         }
         return ip;
+    }
+
+    @GetMapping("/validate-token")
+    public ResponseEntity<?> validateToken(@RequestHeader("Authorization") String bearerToken) {
+        try {
+            String token = bearerToken.substring(7);  // "Bearer " 제거
+            if (jwtTokenProvider.validateToken(token)) {
+                String username = jwtTokenProvider.getUsername(token);
+                return ResponseEntity.ok(new TokenValidationResponse(true, username));
+            }
+            return ResponseEntity.ok(new TokenValidationResponse(false, null));
+        } catch (Exception e) {
+            return ResponseEntity.ok(new TokenValidationResponse(false, null));
+        }
     }
 
     private String resolveToken(HttpServletRequest request) {

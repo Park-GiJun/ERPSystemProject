@@ -1,5 +1,7 @@
 package com.gijun.erpproject.Login;
 
+import com.gijun.erpproject.Config.Handler.CustomAccessDeniedHandler;
+import com.gijun.erpproject.Config.Handler.CustomAuthenticationEntryPoint;
 import com.gijun.erpproject.Login.filter.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -25,6 +27,8 @@ import java.util.Arrays;
 public class SecurityConfig {
 
     private final JwtTokenProvider jwtTokenProvider;
+    private final CustomAuthenticationEntryPoint authenticationEntryPoint;
+    private final CustomAccessDeniedHandler accessDeniedHandler;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -34,16 +38,46 @@ public class SecurityConfig {
                 .sessionManagement(sessionManagement ->
                         sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
-                        // Swagger UI 관련 URL 허용
-                        .requestMatchers("/v3/api-docs/**",
+                        // 인증이 필요없는 요청들
+                        .requestMatchers(
+                                "/",
+                                "/index.html",
+                                "/favicon.ico",
+                                "/assets/**",          // Vite 빌드 시 생성되는 assets 폴더
+                                "/*.js",               // 메인 JS 파일
+                                "/*.css",              // 메인 CSS 파일
+                                "/*.json",             // 매니페스트 등
+                                "/*.ico",              // 파비콘
+                                "/images/**",          // 이미지 폴더
+                                "/fonts/**"            // 폰트 폴더
+                        ).permitAll()
+                        // API 엔드포인트
+                        .requestMatchers(
+                                "/api/auth/login",
+                                "/api/auth/register",
+                                "/api/auth/refresh-token",
+                                "/api/auth/validate-token"
+                        ).permitAll()
+                        // Swagger UI
+                        .requestMatchers(
                                 "/swagger-ui/**",
-                                "/swagger-ui.html",
-                                "/swagger-resources/**",
-                                "/webjars/**").permitAll()
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/public/**").permitAll()
+                                "/v3/api-docs/**"
+                        ).permitAll()
+                        // 정적 리소스
+                        .requestMatchers(
+                                "/static/**",
+                                "/css/**",
+                                "/js/**",
+                                "/images/**"
+                        ).permitAll()
+                        // 관리자 전용
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        // 나머지 요청
                         .anyRequest().authenticated()
+                )
+                .exceptionHandling(exceptionHandling -> exceptionHandling
+                        .authenticationEntryPoint(authenticationEntryPoint)
+                        .accessDeniedHandler(accessDeniedHandler)
                 )
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider),
                         UsernamePasswordAuthenticationFilter.class);
@@ -52,22 +86,22 @@ public class SecurityConfig {
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-    // CORS 설정이 필요한 경우
-    @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000")); // 프론트엔드 주소
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:8080", "http://localhost:5173"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
-
         return source;
+    }
+
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 }
