@@ -1,0 +1,119 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.3.5'
+    id 'io.spring.dependency-management' version '1.1.6'
+    id 'com.github.node-gradle.node' version '7.0.1'
+}
+
+group = 'com.gijun'
+version = '0.0.1-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    compileOnly 'org.projectlombok:lombok'
+    runtimeOnly 'com.mysql:mysql-connector-j'
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    // Spring Security
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+
+    // JWT
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+
+    // Redis (중복 로그인 방지를 위한 토큰 저장소)
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+    // Validation
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    // Swagger UI
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'
+
+    // Redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+}
+
+node {
+    version = '20.10.0'
+    npmVersion = '10.2.3'
+    download = true
+    nodeProjectDir = file("${project.projectDir}/frontend")
+}
+
+// 리소스 디렉토리 명시적 설정
+sourceSets {
+    main {
+        resources {
+            srcDirs = ['src/main/resources']
+        }
+    }
+}
+
+tasks.register('npmBuild', com.github.gradle.node.npm.task.NpmTask) {
+    dependsOn npmInstall
+    args = ['run', 'build']
+    workingDir = file("${project.projectDir}/frontend")
+}
+
+tasks.register('copyFrontendBuild', Copy) {
+    dependsOn npmBuild
+    from "${project.projectDir}/frontend/dist"
+    into "${buildDir}/resources/main/static"
+    // 디렉토리가 없을 경우 생성
+    doFirst {
+        file("${buildDir}/resources/main/static").mkdirs()
+    }
+}
+
+// clean 태스크 설정
+tasks.named('clean') {
+    delete "${buildDir}/resources/main/static"
+}
+
+// processResources 태스크 의존성 설정
+tasks.named('processResources') {
+    mustRunAfter clean
+    dependsOn copyFrontendBuild
+}
+
+// classes 태스크 의존성 설정
+tasks.named('classes') {
+    dependsOn processResources
+}
+
+// bootJar 태스크 설정
+tasks.named('bootJar') {
+    dependsOn classes
+    mainClass = 'com.gijun.erpproject.ErpProjectApplication'
+}
+
+// test 태스크 설정
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
+// bootRun 태스크 설정
+tasks.named('bootRun') {
+    dependsOn processResources
+}
