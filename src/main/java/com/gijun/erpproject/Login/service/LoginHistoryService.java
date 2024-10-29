@@ -4,7 +4,7 @@ import com.gijun.erpproject.Entity.Login.LoginHistory;
 import com.gijun.erpproject.Entity.Login.LoginStatus;
 import com.gijun.erpproject.Entity.Member;
 import com.gijun.erpproject.Login.Repository.LoginHistoryRepository;
-import com.gijun.erpproject.Login.Response.LoginHistoryResponse;
+import com.gijun.erpproject.Response.LoginHistoryResponse;
 import com.gijun.erpproject.Repository.MemberRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -15,8 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
 
 @Service
 @RequiredArgsConstructor

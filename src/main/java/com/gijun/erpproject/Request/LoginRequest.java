@@ -1,4 +1,4 @@
-package com.gijun.erpproject.Login.Request;
+package com.gijun.erpproject.Request;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;

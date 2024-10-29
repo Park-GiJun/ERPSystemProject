@@ -1,9 +1,9 @@
 package com.gijun.erpproject.Login.controller;
 
 import com.gijun.erpproject.Login.JwtTokenProvider;
-import com.gijun.erpproject.Login.Request.LoginRequest;
-import com.gijun.erpproject.Login.Response.TokenResponse;
-import com.gijun.erpproject.Login.Response.TokenValidationResponse;
+import com.gijun.erpproject.Request.LoginRequest;
+import com.gijun.erpproject.Response.TokenResponse;
+import com.gijun.erpproject.Response.TokenValidationResponse;
 import com.gijun.erpproject.Login.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

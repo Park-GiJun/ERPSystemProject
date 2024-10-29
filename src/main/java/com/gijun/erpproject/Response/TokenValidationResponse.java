@@ -1,4 +1,4 @@
-package com.gijun.erpproject.Login.Response;
+package com.gijun.erpproject.Response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

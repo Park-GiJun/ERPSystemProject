@@ -1,7 +1,6 @@
-package com.gijun.erpproject.Login.Response;
+package com.gijun.erpproject.Response;
 
 import lombok.Builder;
-import lombok.Data;
 import lombok.Getter;
 
 @Getter

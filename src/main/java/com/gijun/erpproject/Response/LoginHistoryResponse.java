@@ -1,4 +1,4 @@
-package com.gijun.erpproject.Login.Response;
+package com.gijun.erpproject.Response;
 
 import com.gijun.erpproject.Entity.Login.LoginStatus;
 import lombok.Builder;

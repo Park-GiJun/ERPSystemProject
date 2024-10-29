@@ -1,4 +1,4 @@
-package com.gijun.erpproject.Login.filter;
+package com.gijun.erpproject.filter;
 
 import com.gijun.erpproject.Login.JwtTokenProvider;
 import jakarta.servlet.FilterChain;

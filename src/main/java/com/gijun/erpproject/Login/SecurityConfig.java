@@ -2,7 +2,7 @@ package com.gijun.erpproject.Login;
 
 import com.gijun.erpproject.Config.Handler.CustomAccessDeniedHandler;
 import com.gijun.erpproject.Config.Handler.CustomAuthenticationEntryPoint;
-import com.gijun.erpproject.Login.filter.JwtAuthenticationFilter;
+import com.gijun.erpproject.filter.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
