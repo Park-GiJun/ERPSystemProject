@@ -44,6 +44,12 @@ public class AuthService {
         Member member = memberRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new UsernameNotFoundException("존재하지 않는 회원입니다."));
 
+
+        if(!memberRepository.findEnabledByUsername(member.getUsername()).orElse(false)) {
+            throw new BadCredentialsException("비활성화된 계정입니다.");
+        }
+
+
         if (!passwordEncoder.matches(request.getPassword(), member.getPassword())) {
             recordFailedAttempt(member, ipAddress, userAgent, "잘못된 비밀번호입니다.");
             throw new BadCredentialsException("잘못된 비밀번호입니다.");
@@ -56,7 +62,7 @@ public class AuthService {
         resetLoginAttempts(request.getUsername(), ipAddress);
         member.updateLastLoginAt(LocalDateTime.now());
 
-        return TokenResponse.of(token, member.getUsername());  // 수정된 부분
+        return TokenResponse.of(token, member.getUsername(), String.valueOf(member.getRole()));  // 수정된 부분
     }
 
     private void checkLoginAttempts(String username, String ipAddress) {
@@ -79,11 +85,9 @@ public class AuthService {
         }
     }
 
-    private void recordFailedAttempt(Member member, String ipAddress, String userAgent, String failReason) {
-        // 로그인 이력 저장
+    public void recordFailedAttempt(Member member, String ipAddress, String userAgent, String failReason) {
         saveLoginHistory(member, ipAddress, userAgent, LoginStatus.FAIL, failReason);
 
-        // 실패 시도 횟수 증가
         LoginAttempt attempt = loginAttemptRepository
                 .findByUsernameAndIpAddress(member.getUsername(), ipAddress)
                 .orElseGet(() -> LoginAttempt.builder()
@@ -92,8 +96,10 @@ public class AuthService {
                         .build());
 
         attempt.incrementAttempts();
+
         loginAttemptRepository.save(attempt);
     }
+
 
     private void resetLoginAttempts(String username, String ipAddress) {
         loginAttemptRepository.findByUsernameAndIpAddress(username, ipAddress)

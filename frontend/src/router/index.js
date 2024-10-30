@@ -1,16 +1,18 @@
+// src/router/index.js
 import { createRouter, createWebHistory } from 'vue-router'
-import { useAuthStore } from '../stores/auth'
+import { useAuthStore } from '@/stores/auth'
+import MainLayout from '@/layouts/MainLayout.vue'
 
 const routes = [
   {
     path: '/login',
     name: 'Login',
-    component: () => import('../views/LoginView.vue'),
+    component: () => import('@/views/Login.vue'),
     meta: { requiresAuth: false }
   },
   {
     path: '/',
-    component: () => import('../layouts/MainLayout.vue'),
+    component: MainLayout,
     meta: { requiresAuth: true },
     children: [
       {
@@ -20,9 +22,30 @@ const routes = [
       {
         path: 'dashboard',
         name: 'Dashboard',
-        component: () => import('../views/DashboardView.vue'),
-        meta: { title: '대시보드' }
-      }
+        component: () => import('@/views/Dashboard.vue')
+      },
+      // HR Routes
+      {
+        path: 'hr',
+        component: () => import('@/views/HumanResource/HRLayout.vue'),
+        children: [
+          {
+            path: '',
+            redirect: '/hr/users'
+          },
+          {
+            path: 'users',
+            name: 'UserManagement',
+            component: () => import('@/views/HumanResource/UserManagement/UserList.vue')
+          },
+          {
+            path: 'users/register',
+            name: 'UserRegister',
+            component: () => import('@/views/HumanResource/UserManagement/Register.vue')
+          }
+        ]
+      },
+      // ... 다른 라우트들
     ]
   }
 ]
@@ -32,38 +55,24 @@ const router = createRouter({
   routes
 })
 
-// 라우트 가드
-router.beforeEach((to, from, next) => {
-  const token = localStorage.getItem('token')
+// Navigation guard
+router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore()
 
-  // 루트 경로('/')로 접근하는 경우
-  if (to.path === '/') {
-    if (token) {
-      // 토큰이 있으면 대시보드로
-      next('/dashboard')
-    } else {
-      // 토큰이 없으면 로그인으로
-      next('/login')
-    }
-    return
+  if (!authStore.isInitialized) {
+    await authStore.initializeAuth()
   }
 
-  // 인증이 필요한 페이지에 접근하는 경우
-  if (to.meta.requiresAuth) {
-    if (!token) {
-      next('/login')
-      return
-    }
-  }
+  const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
+  const isAuthenticated = authStore.isAuthenticated
 
-  // 이미 로그인한 상태에서 로그인 페이지에 접근하는 경우
-  if (to.path === '/login' && token) {
+  if (requiresAuth && !isAuthenticated) {
+    next('/login')
+  } else if (to.path === '/login' && isAuthenticated) {
     next('/dashboard')
-    return
+  } else {
+    next()
   }
-
-  next()
 })
 
 export default router

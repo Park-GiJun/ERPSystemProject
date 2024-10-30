@@ -1,3 +1,5 @@
+import com.github.gradle.node.npm.task.NpmTask
+
 plugins {
     id 'java'
     id 'org.springframework.boot' version '3.3.5'
@@ -41,7 +43,7 @@ dependencies {
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
 
-    // Redis (중복 로그인 방지를 위한 토큰 저장소)
+    // Redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
     // Validation
@@ -49,9 +51,6 @@ dependencies {
 
     // Swagger UI
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'
-
-    // Redis
-    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 }
 
 node {
@@ -61,7 +60,39 @@ node {
     nodeProjectDir = file("${project.projectDir}/frontend")
 }
 
-// 리소스 디렉토리 명시적 설정
+// 기존 npmInstall 태스크 설정 수정
+tasks.named('npmInstall') {
+    workingDir = file("${project.projectDir}/frontend")
+    outputs.dir("${project.projectDir}/frontend/node_modules")
+    outputs.file("${project.projectDir}/frontend/package-lock.json")
+}
+
+tasks.register('npmBuild', NpmTask) {
+    dependsOn npmInstall
+    args = ['run', 'build']
+    workingDir = file("${project.projectDir}/frontend")
+    inputs.files("${project.projectDir}/frontend/package.json")
+    inputs.files("${project.projectDir}/frontend/package-lock.json")
+    inputs.dir("${project.projectDir}/frontend/src")
+    outputs.dir("${project.projectDir}/frontend/dist")
+}
+
+tasks.register('copyFrontendBuild', Copy) {
+    dependsOn npmBuild
+    from("${project.projectDir}/frontend/dist")
+    into("${buildDir}/resources/main/static")
+    doFirst {
+        delete "${buildDir}/resources/main/static"
+        file("${buildDir}/resources/main/static").mkdirs()
+    }
+}
+
+tasks.register('npmDev', NpmTask) {
+    args = ['run', 'dev']
+    workingDir = file("${project.projectDir}/frontend")
+}
+
+// 리소스 디렉토리 설정
 sourceSets {
     main {
         resources {
@@ -70,50 +101,40 @@ sourceSets {
     }
 }
 
-tasks.register('npmBuild', com.github.gradle.node.npm.task.NpmTask) {
-    dependsOn npmInstall
-    args = ['run', 'build']
-    workingDir = file("${project.projectDir}/frontend")
-}
-
-tasks.register('copyFrontendBuild', Copy) {
-    dependsOn npmBuild
-    from "${project.projectDir}/frontend/dist"
-    into "${buildDir}/resources/main/static"
-    // 디렉토리가 없을 경우 생성
-    doFirst {
-        file("${buildDir}/resources/main/static").mkdirs()
-    }
-}
-
-// clean 태스크 설정
 tasks.named('clean') {
     delete "${buildDir}/resources/main/static"
+    delete "${project.projectDir}/frontend/dist"
 }
 
-// processResources 태스크 의존성 설정
 tasks.named('processResources') {
-    mustRunAfter clean
     dependsOn copyFrontendBuild
 }
 
-// classes 태스크 의존성 설정
-tasks.named('classes') {
+tasks.named('bootJar') {
     dependsOn processResources
 }
 
-// bootJar 태스크 설정
-tasks.named('bootJar') {
-    dependsOn classes
-    mainClass = 'com.gijun.erpproject.ErpProjectApplication'
+tasks.named('bootRun') {
+    dependsOn processResources
 }
 
-// test 태스크 설정
 tasks.named('test') {
     useJUnitPlatform()
 }
 
-// bootRun 태스크 설정
-tasks.named('bootRun') {
-    dependsOn processResources
+// 에러 처리 개선
+gradle.taskGraph.whenReady { graph ->
+    tasks.withType(NpmTask) { task ->
+        task.doFirst {
+            if (!file("${project.projectDir}/frontend/package.json").exists()) {
+                throw new GradleException("Frontend project not found. Please check if package.json exists in ${project.projectDir}/frontend/")
+            }
+        }
+    }
+}
+
+// 빌드 캐시 설정
+tasks.withType(NpmTask) {
+    inputs.property('node.version', node.version)
+    inputs.property('npm.version', node.npmVersion)
 }

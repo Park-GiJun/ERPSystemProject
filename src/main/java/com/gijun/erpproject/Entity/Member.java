@@ -36,6 +36,7 @@ public class Member extends BaseTimeEntity {
     @Column(nullable = false)
     private Role role;
 
+    @Getter
     @Column(nullable = false)
     private boolean enabled = true;
 
@@ -46,15 +47,38 @@ public class Member extends BaseTimeEntity {
     private List<LoginHistory> loginHistories = new ArrayList<>();
 
     @Builder
-    public Member(String username, String password, String name, String email, Role role) {
+    public Member(String username, String password, String name, String email, Role role, boolean enabled) {
         this.username = username;
         this.password = password;
         this.name = name;
         this.email = email;
         this.role = role;
+        this.enabled = enabled;
     }
 
     public void updateLastLoginAt(LocalDateTime lastLoginAt) {
         this.lastLoginAt = lastLoginAt;
+    }
+
+    // 회원 상태 토글
+    public void toggleEnabled() {
+        this.enabled = !this.enabled;
+    }
+
+    // 비밀번호 업데이트
+    public void updatePassword(String newPassword) {
+        this.password = newPassword;
+    }
+
+    // 마지막 로그인 시간 업데이트
+    public void updateLastLoginAt() {
+        this.lastLoginAt = LocalDateTime.now();
+    }
+
+    // 회원 정보 업데이트
+    public void update(String name, String email, Role role) {
+        this.name = name;
+        this.email = email;
+        this.role = role;
     }
 }
