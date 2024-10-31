@@ -23,16 +23,58 @@
             </router-link>
           </li>
 
-          <!-- Projects -->
+          <!-- Projects with submenu -->
           <li>
-            <router-link
-              to="/projects"
-              class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
-              :class="{ 'bg-gray-800 text-white': isCurrentRoute('/projects') }"
-            >
-              <Briefcase class="w-5 h-5 mr-3" />
-              Projects
-            </router-link>
+            <div>
+              <button
+                @click="toggleProjectMenu"
+                class="w-full flex items-center px-4 py-3 text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
+                :class="{ 'bg-gray-800 text-white': isProjectRoute }"
+              >
+                <Briefcase class="w-5 h-5 mr-3" />
+                <span class="flex-1 text-left">Projects</span>
+                <ChevronDown
+                  class="w-4 h-4 transition-transform duration-200"
+                  :class="{ 'rotate-180': isProjectMenuOpen }"
+                />
+              </button>
+
+              <!-- Project Submenu -->
+              <div v-show="isProjectMenuOpen || isProjectRoute" class="bg-gray-850">
+                <router-link
+                  to="/projects/list"
+                  class="flex items-center pl-12 py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
+                  :class="{ 'bg-gray-800 text-white': isCurrentRoute('/projects/list') }"
+                >
+                  <ListTodo class="w-4 h-4 mr-2" />
+                  프로젝트 목록
+                </router-link>
+                <router-link
+                  to="/projects/milestones"
+                  class="flex items-center pl-12 py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
+                  :class="{ 'bg-gray-800 text-white': isCurrentRoute('/projects/milestones') }"
+                >
+                  <Milestone class="w-4 h-4 mr-2" />
+                  마일스톤
+                </router-link>
+                <router-link
+                  to="/projects/dashboard"
+                  class="flex items-center pl-12 py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
+                  :class="{ 'bg-gray-800 text-white': isCurrentRoute('/projects/dashboard') }"
+                >
+                  <BarChart class="w-4 h-4 mr-2" />
+                  프로젝트 현황
+                </router-link>
+                <router-link
+                  to="/projects/settings"
+                  class="flex items-center pl-12 py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
+                  :class="{ 'bg-gray-800 text-white': isCurrentRoute('/projects/settings') }"
+                >
+                  <Settings class="w-4 h-4 mr-2" />
+                  설정
+                </router-link>
+              </div>
+            </div>
           </li>
 
           <!-- HR with submenu -->
@@ -67,23 +109,11 @@
                 >
                   Register User
                 </router-link>
-                <!-- Add more HR submenu items here -->
               </div>
             </div>
           </li>
 
-          <!-- Other main menu items -->
-          <li>
-            <router-link
-              to="/sales"
-              class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
-              :class="{ 'bg-gray-800 text-white': isCurrentRoute('/sales') }"
-            >
-              <BarChart3 class="w-5 h-5 mr-3" />
-              Sales
-            </router-link>
-          </li>
-
+          <!-- Other menu items... -->
           <li>
             <router-link
               to="/calendar"
@@ -148,21 +178,27 @@ import {
   Calendar,
   MessagesSquare,
   Settings,
-  BarChart3,
+  BarChart,
   FileText,
   Briefcase,
   LogOut,
   ChevronDown,
-  List,
-  UserPlus
+  ListTodo,
+  Milestone
 } from 'lucide-vue-next'
 
 const route = useRoute()
 const authStore = useAuthStore()
 
 const isHRMenuOpen = ref(false)
+const isProjectMenuOpen = ref(false)
+
 const toggleHRMenu = () => {
   isHRMenuOpen.value = !isHRMenuOpen.value
+}
+
+const toggleProjectMenu = () => {
+  isProjectMenuOpen.value = !isProjectMenuOpen.value
 }
 
 // HR 메뉴가 활성화되었는지 확인
@@ -170,11 +206,16 @@ const isHRRoute = computed(() => {
   return route.path.startsWith('/hr')
 })
 
-// const userRole = ref('System Admin')
+// 프로젝트 메뉴가 활성화되었는지 확인
+const isProjectRoute = computed(() => {
+  return route.path.startsWith('/projects')
+})
+
 const userRole = computed(() => {
   const role = authStore.role || ''
-  return role.includes('ADMIN')? 'System Admin' : 'Employee'
+  return role.includes('ADMIN') ? 'System Admin' : 'Employee'
 })
+
 const userInitials = computed(() => {
   const username = authStore.username || ''
   return username.substring(0, 2).toUpperCase()
@@ -198,7 +239,6 @@ const handleLogout = () => {
 </script>
 
 <style scoped>
-/* Add if you need darker background for submenu */
 .bg-gray-850 {
   background-color: rgba(26, 32, 44, 1);
 }

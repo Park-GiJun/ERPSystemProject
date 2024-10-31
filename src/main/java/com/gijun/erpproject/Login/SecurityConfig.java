@@ -5,6 +5,7 @@ import com.gijun.erpproject.Config.Handler.CustomAuthenticationEntryPoint;
 import com.gijun.erpproject.Login.service.CustomUserDetailsService;
 import com.gijun.erpproject.Service.MemberService;
 import com.gijun.erpproject.filter.JwtAuthenticationFilter;
+import com.gijun.erpproject.filter.ProjectRequestLoggingFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,6 +26,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 
 import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -36,6 +38,7 @@ public class SecurityConfig {
     private final CustomAccessDeniedHandler accessDeniedHandler;
     private final CustomUserDetailsService customUserDetailsService;
     private final PasswordEncoder passwordEncoder;
+    private final ProjectRequestLoggingFilter projectRequestLoggingFilter;
 
     @Bean
     public AuthenticationProvider authenticationProvider() {
@@ -59,13 +62,13 @@ public class SecurityConfig {
                                 "/",
                                 "/index.html",
                                 "/favicon.ico",
-                                "/assets/**",          // Vite 빌드 시 생성되는 assets 폴더
-                                "/*.js",               // 메인 JS 파일
-                                "/*.css",              // 메인 CSS 파일
-                                "/*.json",             // 매니페스트 등
-                                "/*.ico",              // 파비콘
-                                "/images/**",          // 이미지 폴더
-                                "/fonts/**"            // 폰트 폴더
+                                "/assets/**",
+                                "/*.js",
+                                "/*.css",
+                                "/*.json",
+                                "/*.ico",
+                                "/images/**",
+                                "/fonts/**"
                         ).permitAll()
                         // API 엔드포인트
                         .requestMatchers(
@@ -86,10 +89,17 @@ public class SecurityConfig {
                                 "/js/**",
                                 "/images/**"
                         ).permitAll()
+                        // 프로젝트 관련 API 권한 설정
+                        .requestMatchers(HttpMethod.POST, "/api/projects/").hasAnyRole("ADMIN", "USER")
+                        .requestMatchers(HttpMethod.GET, "/api/projects/**").hasAnyRole("ADMIN", "USER")
+                        .requestMatchers(HttpMethod.POST, "/api/projects/**").hasAnyRole("ADMIN", "USER")
+                        .requestMatchers(HttpMethod.PUT, "/api/projects/**").hasAnyRole("ADMIN", "USER")
+                        .requestMatchers(HttpMethod.DELETE, "/api/projects/**").hasAnyRole("ADMIN")
+                        .requestMatchers("/api/memebers").permitAll()
                         // 관리자 전용
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/members/**").hasAnyRole("ADMIN", "USER")
-                        .requestMatchers("/api/members/**").hasRole("ADMIN")  // ADMIN만 회원 관리 가능
+                        .requestMatchers("/api/members/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
@@ -101,8 +111,10 @@ public class SecurityConfig {
                         .accessDeniedHandler(accessDeniedHandler)
                 )
 
-                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider),
-                        UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(projectRequestLoggingFilter, JwtAuthenticationFilter.class); // 커스텀 필터 추가
+
+
 
         return http.build();
     }
@@ -111,8 +123,8 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList("http://localhost:8080", "http://localhost:5173"));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH" ,"OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("*"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
         configuration.setMaxAge(3600L);
 

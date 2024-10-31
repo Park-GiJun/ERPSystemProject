@@ -45,7 +45,47 @@ const routes = [
           }
         ]
       },
-      // ... 다른 라우트들
+      // Project Routes
+      {
+        path: 'projects',
+        component: () => import('@/views/Project/ProjectLayout.vue'),
+        children: [
+          {
+            path: '',
+            redirect: '/projects/list'
+          },
+          {
+            path: 'list',
+            name: 'ProjectList',
+            component: () => import('@/views/Project/ProjectList.vue')
+          },
+          {
+            path: 'create',
+            name: 'ProjectCreate',
+            component: () => import('@/views/Project/ProjectCreate.vue')
+          },
+          {
+            path: ':id',
+            name: 'ProjectDetail',
+            component: () => import('@/views/Project/ProjectDetail.vue')
+          },
+          {
+            path: 'milestones',
+            name: 'ProjectMilestones',
+            component: () => import('@/views/Project/Milestone/MilestoneList.vue')
+          },
+          {
+            path: 'dashboard',
+            name: 'ProjectDashboard',
+            component: () => import('@/views/Project/Dashboard/ProjectDashboard.vue')
+          },
+          {
+            path: 'settings',
+            name: 'ProjectSettings',
+            component: () => import('@/views/Project/Settings/ProjectSettings.vue')
+          }
+        ]
+      }
     ]
   }
 ]

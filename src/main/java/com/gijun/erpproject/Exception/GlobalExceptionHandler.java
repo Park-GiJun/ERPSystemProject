@@ -58,5 +58,8 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(new ErrorResponse("서버 오류가 발생했습니다."),
                 HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+
+
 }
 
