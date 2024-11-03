@@ -4,7 +4,10 @@ import com.gijun.erpproject.Entity.*;
 import com.gijun.erpproject.Enum.ProjectRole;
 import com.gijun.erpproject.Enum.ProjectStatus;
 import com.gijun.erpproject.Repository.*;
+import com.gijun.erpproject.dto.ProjectDetailDTO;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.Hibernate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -43,10 +46,12 @@ public class ProjectService {
         return savedProject;
     }
 
-    public Project getProjectById(Long id) {
-        return projectRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Project not found: " + id));
+    @Transactional
+    public Project getProjectById(Long projectId) {
+        return projectRepository.findByIdWithMembersAndTechnologies(projectId)
+                .orElseThrow(() -> new RuntimeException("Project not found"));
     }
+
 
     public Page<Project> getAllProjects(Pageable pageable) {
         return projectRepository.findAll(pageable);
@@ -73,4 +78,6 @@ public class ProjectService {
     public List<Project> getDelayedProjects() {
         return projectRepository.findDelayedProjects(LocalDate.now());
     }
+
+
 }

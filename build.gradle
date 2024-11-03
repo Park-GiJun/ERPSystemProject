@@ -53,6 +53,21 @@ dependencies {
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'
 }
 
+bootJar {
+    manifest {
+        attributes(
+                'Spring-Profile': project.hasProperty('profile') ? project.property('profile') : 'dev'
+        )
+    }
+}
+
+bootRun {
+    systemProperty "spring.profiles.active", System.getProperty("spring.profiles.active", "dev")
+    doFirst {
+        println "Running bootRun with profile: ${System.getProperty("spring.profiles.active", "dev")}"
+    }
+}
+
 node {
     version = '20.10.0'
     npmVersion = '10.2.3'
@@ -67,38 +82,77 @@ tasks.named('npmInstall') {
     outputs.file("${project.projectDir}/frontend/package-lock.json")
 }
 
-tasks.register('npmBuild', NpmTask) {
+// 환경별 npm 빌드 태스크
+tasks.register('npmBuildDev', NpmTask) {
     dependsOn npmInstall
-    args = ['run', 'build']
+    args = ['run', 'build:dev']
     workingDir = file("${project.projectDir}/frontend")
     inputs.files("${project.projectDir}/frontend/package.json")
     inputs.files("${project.projectDir}/frontend/package-lock.json")
     inputs.dir("${project.projectDir}/frontend/src")
     outputs.dir("${project.projectDir}/frontend/dist")
-}
-
-tasks.register('copyFrontendBuild', Copy) {
-    dependsOn npmBuild
-    from("${project.projectDir}/frontend/dist")
-    into("${buildDir}/resources/main/static")
     doFirst {
-        delete "${buildDir}/resources/main/static"
-        file("${buildDir}/resources/main/static").mkdirs()
+        println "Starting npmBuildDev with development configuration"
     }
 }
 
-tasks.register('npmDev', NpmTask) {
-    args = ['run', 'dev']
+def npmBuildTask = tasks.register('npmBuild', NpmTask) {
+    dependsOn npmInstall
+    doFirst {
+        def buildMode = project.hasProperty('profile') && project.property('profile') == 'prod' ? 'build:prod' : 'build:dev'
+        println "Building frontend for ${buildMode} mode"
+    }
+    args = ['run', project.hasProperty('profile') && project.property('profile') == 'prod' ? 'build:prod' : 'build:dev']
     workingDir = file("${project.projectDir}/frontend")
 }
 
-// 리소스 디렉토리 설정
-sourceSets {
-    main {
-        resources {
-            srcDirs = ['src/main/resources']
-        }
+// 기존 copyFrontendBuild 태스크 수정
+tasks.register('copyFrontendBuild', Copy) {
+    dependsOn npmBuildTask
+    from("${project.projectDir}/frontend/dist")
+    into("${buildDir}/resources/main/static")
+    doFirst {
+        println "Copying frontend build to resources/static directory"
     }
+}
+
+// 프로덕션 빌드 전용 태스크
+tasks.register('buildProd') {
+    dependsOn clean
+    dependsOn bootJar
+    doFirst {
+        println "Building for production..."
+        project.ext.set("profile", "prod")
+    }
+}
+
+// 개발 빌드 전용 태스크
+tasks.register('buildDev') {
+    dependsOn clean
+    dependsOn bootJar
+    doFirst {
+        println "Building for development..."
+        project.ext.set("profile", "dev")
+    }
+}
+
+// npm 개발 서버 실행 태스크
+tasks.register('npmDev', NpmTask) {
+    args = ['run', 'dev']
+    workingDir = file("${project.projectDir}/frontend")
+    doFirst {
+        println "Starting npm development server"
+    }
+}
+
+// 빌드 로그 메시지 추가
+gradle.taskGraph.whenReady { graph ->
+    println "==== Build Information ===="
+    println "Profile: ${project.hasProperty('profile') ? project.property('profile') : 'dev'}"
+    println "Java Version: ${java.toolchain.languageVersion.get()}"
+    println "Node Version: ${node.version}"
+    println "NPM Version: ${node.npmVersion}"
+    println "==========================="
 }
 
 tasks.named('clean') {
@@ -120,21 +174,4 @@ tasks.named('bootRun') {
 
 tasks.named('test') {
     useJUnitPlatform()
-}
-
-// 에러 처리 개선
-gradle.taskGraph.whenReady { graph ->
-    tasks.withType(NpmTask) { task ->
-        task.doFirst {
-            if (!file("${project.projectDir}/frontend/package.json").exists()) {
-                throw new GradleException("Frontend project not found. Please check if package.json exists in ${project.projectDir}/frontend/")
-            }
-        }
-    }
-}
-
-// 빌드 캐시 설정
-tasks.withType(NpmTask) {
-    inputs.property('node.version', node.version)
-    inputs.property('npm.version', node.npmVersion)
 }

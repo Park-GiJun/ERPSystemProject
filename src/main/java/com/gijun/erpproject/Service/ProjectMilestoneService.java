@@ -32,7 +32,11 @@ public class ProjectMilestoneService {
         ProjectMilestone milestone = milestoneRepository.findById(milestoneId)
                 .orElseThrow(() -> new IllegalArgumentException("Milestone not found: " + milestoneId));
         milestone.updateStatus(status);
+
+        // 상태 업데이트 시 진행률도 갱신
+        updateAndCalculateMilestoneProgress(milestoneId);
     }
+
 
     // 마일스톤 진행률 계산
     public double calculateMilestoneProgress(Long milestoneId) {
@@ -44,4 +48,26 @@ public class ProjectMilestoneService {
                 .average()
                 .orElse(0.0);
     }
+
+    @Transactional
+    public double updateAndCalculateMilestoneProgress(Long milestoneId) {
+        List<ProjectTask> tasks = taskRepository.findByMilestoneId(milestoneId);
+        double progress = tasks.isEmpty() ? 0.0 : tasks.stream()
+                .mapToInt(ProjectTask::getProgress)
+                .average()
+                .orElse(0.0);
+
+        ProjectMilestone milestone = milestoneRepository.findById(milestoneId)
+                .orElseThrow(() -> new IllegalArgumentException("Milestone not found: " + milestoneId));
+        milestone.updateProgress(progress);
+
+        return progress;
+    }
+
+    public double getMilestoneProgress(Long milestoneId) {
+        ProjectMilestone milestone = milestoneRepository.findById(milestoneId)
+                .orElseThrow(() -> new IllegalArgumentException("Milestone not found: " + milestoneId));
+        return milestone.getProgress();
+    }
+
 }

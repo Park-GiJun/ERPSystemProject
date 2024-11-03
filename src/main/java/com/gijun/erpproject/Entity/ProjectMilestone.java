@@ -49,6 +49,10 @@ public class ProjectMilestone extends BaseTimeEntity {
     @Column(nullable = false)
     private Integer orderIndex; // 마일스톤 순서
 
+    @Column(nullable = false)
+    private double progress;
+
+
     @OneToMany(mappedBy = "milestone", cascade = CascadeType.ALL)
     private List<ProjectTask> tasks = new ArrayList<>();
 
@@ -72,5 +76,9 @@ public class ProjectMilestone extends BaseTimeEntity {
     public void updateDates(LocalDate actualStartDate, LocalDate actualEndDate) {
         this.actualStartDate = actualStartDate;
         this.actualEndDate = actualEndDate;
+    }
+
+    public void updateProgress(double progress) {
+        this.progress = progress;
     }
 }

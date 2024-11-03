@@ -47,7 +47,7 @@
                   :class="{ 'bg-gray-800 text-white': isCurrentRoute('/projects/list') }"
                 >
                   <ListTodo class="w-4 h-4 mr-2" />
-                  프로젝트 목록
+                  Project List
                 </router-link>
                 <router-link
                   to="/projects/milestones"
@@ -55,7 +55,7 @@
                   :class="{ 'bg-gray-800 text-white': isCurrentRoute('/projects/milestones') }"
                 >
                   <Milestone class="w-4 h-4 mr-2" />
-                  마일스톤
+                  Milestones
                 </router-link>
                 <router-link
                   to="/projects/dashboard"
@@ -63,7 +63,7 @@
                   :class="{ 'bg-gray-800 text-white': isCurrentRoute('/projects/dashboard') }"
                 >
                   <BarChart class="w-4 h-4 mr-2" />
-                  프로젝트 현황
+                  Project Dashboard
                 </router-link>
                 <router-link
                   to="/projects/settings"
@@ -71,7 +71,7 @@
                   :class="{ 'bg-gray-800 text-white': isCurrentRoute('/projects/settings') }"
                 >
                   <Settings class="w-4 h-4 mr-2" />
-                  설정
+                  Settings
                 </router-link>
               </div>
             </div>

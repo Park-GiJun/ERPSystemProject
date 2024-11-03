@@ -42,9 +42,11 @@ public class ProjectDetailDTO {
                 .members(project.getProjectMembers().stream()
                         .map(ProjectMemberDTO::from)
                         .collect(Collectors.toList()))
-                .technologies(project.getTechnologies().stream()
+                .technologies(project.getTechnologies() != null
+                        ? project.getTechnologies().stream()
                         .map(ProjectTechnologyDTO::from)
-                        .collect(Collectors.toList()))
+                        .collect(Collectors.toList())
+                        : List.of()) // technologies가 null일 경우 빈 리스트로 대체
                 .build();
     }
 }

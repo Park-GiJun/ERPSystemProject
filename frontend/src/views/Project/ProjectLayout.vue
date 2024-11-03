@@ -3,7 +3,7 @@
   <div class="h-full p-8">
     <!-- Header Section -->
     <div class="mb-6">
-      <h1 class="text-2xl font-bold text-gray-900">프로젝트 관리</h1>
+      <h1 class="text-2xl font-bold text-gray-900">Project Management</h1>
       <div class="flex items-center justify-between mt-4">
         <div class="flex items-center space-x-4">
           <!-- Navigation Tabs -->
@@ -32,7 +32,7 @@
             class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
           >
             <PlusCircle class="w-5 h-5 mr-2" />
-            새 프로젝트
+            Create Project
           </router-link>
         </div>
       </div>
@@ -59,22 +59,22 @@ const route = useRoute();
 
 const navigationTabs = [
   {
-    name: '프로젝트 목록',
+    name: 'Project List',
     path: '/projects/list',
     icon: ListTodo,
   },
   {
-    name: '마일스톤',
+    name: 'Milestones',
     path: '/projects/milestones',
     icon: Calendar,
   },
   {
-    name: '프로젝트 현황',
+    name: 'Project Dashboard',
     path: '/projects/dashboard',
     icon: BarChart,
   },
   {
-    name: '설정',
+    name: 'Settings',
     path: '/projects/settings',
     icon: Settings,
   },

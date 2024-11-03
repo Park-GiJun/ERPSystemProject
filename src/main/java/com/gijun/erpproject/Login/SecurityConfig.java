@@ -60,6 +60,7 @@ public class SecurityConfig {
                         // 인증이 필요없는 요청들
                         .requestMatchers(
                                 "/",
+                                "/&**",
                                 "/index.html",
                                 "/favicon.ico",
                                 "/assets/**",
@@ -115,14 +116,18 @@ public class SecurityConfig {
                 .addFilterBefore(projectRequestLoggingFilter, JwtAuthenticationFilter.class); // 커스텀 필터 추가
 
 
-
         return http.build();
     }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:8080", "http://localhost:5173"));
+        configuration.setAllowedOrigins(Arrays.asList(
+                "http://localhost:8080",
+                "http://localhost:5173",
+                "http://olm.life",
+                "https://olm.life"    // HTTPS 추가
+        ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);

@@ -1,55 +1,170 @@
-# 🏢 ERP System Project
+# SI Company ERP System
 
-![ERP System](https://via.placeholder.com/800x400?text=ERP+System+Project)
+## 1. Project Overview
+### 1.1 Project Description
+- A comprehensive Enterprise Resource Planning (ERP) system designed for SI Company
+- Built with Vue.js 3 (Frontend) and Spring Boot 3 (Backend)
+- Focused on providing integrated management of company resources and operations
 
-## 📌 개요
+### 1.2 Technology Stack
+#### Frontend
+- Vue.js 3
+- Pinia (State Management)
+- Vue Router
+- Tailwind CSS
+- Lucide Icons
+- Axios for API communication
+- Vuelidate for form validation
 
-이 프로젝트는 개인 공부용 **ERP 시스템**을 개발하기 위한 것입니다. 이 시스템은 인사 관리, 회원 관리, 로그인 기능 등 다양한 비즈니스 프로세스를 지원합니다.
+#### Backend
+- Spring Boot 3
+- Spring Security with JWT
+- Spring Data JPA
+- MySQL Database
+- Redis (for token management)
+- Swagger UI for API documentation
 
-## 🚀 주요 기능
+### 1.3 Development Environment
+- Java 21
+- Node.js 20.10.0
+- npm 10.2.3
+- Gradle 8.x
 
-- 👥 사용자 등록 및 관리
-- 🔐 로그인 및 인증
-- 🔑 비밀번호 재설정
-- 📊 사용자 활동 기록
-- 📋 사용자 목록 조회
-- 📈 각종 통계 및 리포트 기능
+## 2. System Architecture
 
-## 🛠 기술 스택
+### 2.1 Frontend Architecture
+```
+frontend/
+├── src/
+│   ├── components/      # Reusable UI components
+│   ├── layouts/         # Page layouts
+│   ├── views/           # Page components
+│   ├── stores/          # Pinia stores
+│   ├── router/          # Vue Router configuration
+│   ├── config/          # Configuration files
+│   └── plugins/         # Vue plugins
+```
 
-| 영역 | 기술 |
-|------|------|
-| 프론트엔드 | Vue.js, Tailwind CSS |
-| 백엔드 | Spring Boot |
-| 데이터베이스 | MySQL, Hibernate |
-| 보안 | JWT (JSON Web Token) |
-| 버전 관리 | Git |
+### 2.2 Backend Architecture
+```
+backend/
+├── controller/          # REST API endpoints
+├── service/            # Business logic
+├── repository/         # Data access layer
+├── entity/            # Database entities
+├── dto/               # Data transfer objects
+├── config/            # Configuration classes
+└── security/          # Security configuration
+```
 
-## 📥 설치 방법
+## 3. Key Features
 
-1. 이 리포지토리를 클론합니다.
-2. 필요한 라이브러리 및 종속성을 설치합니다.
-3. 데이터베이스를 설정하고 초기 데이터를 불러옵니다.
-4. 백엔드 애플리케이션을 실행합니다.
-5. 프론트엔드를 실행합니다.
+### 3.1 Authentication & Authorization
+- JWT-based authentication
+- Role-based access control (ADMIN, USER)
+- Secure password handling with BCrypt
+- Token refresh mechanism
+- Login history tracking
 
-## 🖥 사용 방법
+### 3.2 User Management
+- User registration and profile management
+- Password reset functionality
+- User status management (active/inactive)
+- Login history and audit trails
 
-1. 브라우저에서 `http://localhost:8080` 접속
-2. 사용자 등록 후 로그인
-3. 다양한 ERP 기능 사용
+### 3.3 Dashboard
+- Overview of key metrics
+- Real-time updates
+- Customizable widgets
+- Performance indicators
 
-## 📄 라이센스
+### 3.4 Human Resources
+- Employee management
+- Department organization
+- Attendance tracking
+- Leave management
+- Performance evaluations
 
-이 프로젝트는 [MIT 라이센스](LICENSE)하에 배포됩니다.
+### 3.5 Project Management
+- Project creation and tracking
+- Task assignment
+- Progress monitoring
+- Resource allocation
+- Timeline management
 
-## 📞 연락처
+### 3.6 Reports & Analytics
+- Customizable reports
+- Data visualization
+- Export functionality
+- Performance analytics
 
-- 개발자: [GiJun Park](https://github.com/Park-GiJun)
-- 이메일: tpgj98@naver.com
+## 4. Security Features
 
----
+### 4.1 Frontend Security
+- Protected routes
+- Token-based authentication
+- Secure localStorage handling
+- CORS configuration
+- XSS protection
 
-[![GitHub stars](https://img.shields.io/github/stars/Park-GiJun/ERPSystemProject?style=social)](https://github.com/Park-GiJun/ERPSystemProject/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/Park-GiJun/ERPSystemProject?style=social)](https://github.com/Park-GiJun/ERPSystemProject/network/members)
-[![GitHub issues](https://img.shields.io/github/issues/Park-GiJun/ERPSystemProject)](https://github.com/Park-GiJun/ERPSystemProject/issues)
+### 4.2 Backend Security
+- Spring Security implementation
+- JWT token validation
+- Password encryption
+- Role-based authorization
+- API request validation
+
+## 5. Database Schema
+
+### 5.1 Core Tables
+- members: User information and authentication
+- login_history: Authentication audit trails
+- roles: User role definitions
+- departments: Organization structure
+- projects: Project management data
+- tasks: Project task details
+
+## 6. API Integration
+
+### 6.1 REST API Structure
+- /api/auth/: Authentication endpoints
+- /api/members/: User management
+- /api/projects/: Project operations
+- /api/hr/: Human resources management
+- /api/reports/: Reporting and analytics
+
+### 6.2 Swagger Documentation
+- Interactive API documentation
+- Request/Response examples
+- Authentication documentation
+- Error handling documentation
+
+## 7. Development & Deployment
+
+### 7.1 Development Setup
+- Local development environment
+- Database configuration
+- Redis setup
+- Frontend development server
+- Backend development server
+
+### 7.2 Production Deployment
+- Production build process
+- Environment configuration
+- Server requirements
+- Deployment checklist
+
+## 8. Future Enhancements
+
+### 8.1 Planned Features
+- Advanced analytics dashboard
+- Mobile application support
+- Real-time notifications
+- Document management system
+- Integration with external services
+
+### 8.2 Scalability Considerations
+- Microservices architecture
+- Load balancing
+- Caching strategies
+- Database optimization

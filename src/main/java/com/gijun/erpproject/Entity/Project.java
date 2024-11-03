@@ -45,11 +45,11 @@ public class Project extends BaseTimeEntity {
 
     // 프로젝트 멤버 관리를 위한 중간 테이블 엔티티와의 관계
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ProjectMember> projectMembers = new ArrayList<>();
+    private Set<ProjectMember> projectMembers = new HashSet<>();
 
     // 기술 스택 관리를 위한 중간 테이블 엔티티와의 관계
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ProjectTechnology> technologies = new ArrayList<>();
+    private Set<ProjectTechnology> technologies = new HashSet<>();
 
     @Builder
     public Project(String name, String description, LocalDate startDate, LocalDate endDate,
