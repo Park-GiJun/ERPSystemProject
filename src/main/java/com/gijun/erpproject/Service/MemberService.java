@@ -5,7 +5,7 @@ import com.gijun.erpproject.Enum.Role;
 import com.gijun.erpproject.Exception.Security.DuplicateLoginException;
 import com.gijun.erpproject.Repository.MemberRepository;
 import com.gijun.erpproject.dto.MemberDTO;
-import com.gijun.erpproject.dto.PageResponseDTO;
+import com.gijun.erpproject.Response.PageResponseDTO;
 import com.gijun.erpproject.dto.register.RegisterRequestDTO;
 import com.gijun.erpproject.dto.register.RegisterResponseDTO;
 import org.springframework.data.domain.Page;

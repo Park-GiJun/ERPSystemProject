@@ -1,11 +1,8 @@
-package com.gijun.erpproject.dto;
+package com.gijun.erpproject.Response;
 
 import com.gijun.erpproject.Entity.ProjectTask;
 import com.gijun.erpproject.Enum.TaskStatus;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import com.gijun.erpproject.dto.MemberSimpleDTO;
 import lombok.*;
 
 import java.time.LocalDate;

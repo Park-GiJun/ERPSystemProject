@@ -1,4 +1,4 @@
-package com.gijun.erpproject.dto;
+package com.gijun.erpproject.Response;
 
 import org.springframework.data.domain.Page;
 

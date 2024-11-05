@@ -2,7 +2,7 @@ package com.gijun.erpproject.Controller;
 
 import com.gijun.erpproject.Service.MemberService;
 import com.gijun.erpproject.dto.MemberDTO;
-import com.gijun.erpproject.dto.PageResponseDTO;
+import com.gijun.erpproject.Response.PageResponseDTO;
 import com.gijun.erpproject.dto.register.RegisterRequestDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

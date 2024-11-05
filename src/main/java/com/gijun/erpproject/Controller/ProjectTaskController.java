@@ -2,6 +2,8 @@ package com.gijun.erpproject.Controller;
 
 import com.gijun.erpproject.Entity.ProjectTask;
 import com.gijun.erpproject.Entity.TaskComment;
+import com.gijun.erpproject.Response.CommentResponseDTO;
+import com.gijun.erpproject.Response.TaskResponseDTO;
 import com.gijun.erpproject.Service.ProjectTaskService;
 import com.gijun.erpproject.dto.*;
 import io.swagger.v3.oas.annotations.Operation;

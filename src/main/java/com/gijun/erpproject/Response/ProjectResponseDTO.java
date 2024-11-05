@@ -1,4 +1,4 @@
-package com.gijun.erpproject.dto;
+package com.gijun.erpproject.Response;
 
 import com.gijun.erpproject.Entity.Project;
 import com.gijun.erpproject.Enum.ProjectStatus;

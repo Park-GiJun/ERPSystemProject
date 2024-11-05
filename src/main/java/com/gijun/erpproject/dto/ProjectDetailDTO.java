@@ -2,7 +2,7 @@ package com.gijun.erpproject.dto;
 
 import com.gijun.erpproject.Entity.*;
 import com.gijun.erpproject.Enum.ProjectStatus;
-import jakarta.validation.constraints.*;
+import com.gijun.erpproject.Response.MilestoneResponseDTO;
 import lombok.*;
 
 import java.math.BigDecimal;

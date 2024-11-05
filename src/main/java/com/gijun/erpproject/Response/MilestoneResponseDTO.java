@@ -1,4 +1,4 @@
-package com.gijun.erpproject.dto;
+package com.gijun.erpproject.Response;
 
 import com.gijun.erpproject.Entity.ProjectMilestone;
 import com.gijun.erpproject.Enum.MilestoneStatus;

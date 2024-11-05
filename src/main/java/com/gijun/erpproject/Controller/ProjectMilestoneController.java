@@ -5,7 +5,7 @@ import com.gijun.erpproject.Service.ProjectMilestoneService;
 import com.gijun.erpproject.Service.ProjectService;
 import com.gijun.erpproject.dto.MilestoneCreateDTO;
 import com.gijun.erpproject.dto.MilestoneProgressDTO;
-import com.gijun.erpproject.dto.MilestoneResponseDTO;
+import com.gijun.erpproject.Response.MilestoneResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;

@@ -1,6 +1,7 @@
 package com.gijun.erpproject.Controller;
 
 import com.gijun.erpproject.Entity.*;
+import com.gijun.erpproject.Response.ProjectResponseDTO;
 import com.gijun.erpproject.Service.*;
 import com.gijun.erpproject.dto.*;
 import io.swagger.v3.oas.annotations.Operation;
@@ -10,11 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.Map;
 
 @Tag(name = "Project Management", description = "프로젝트 관리 API")
 @RestController

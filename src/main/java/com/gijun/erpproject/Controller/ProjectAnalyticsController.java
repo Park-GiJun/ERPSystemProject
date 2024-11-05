@@ -4,7 +4,7 @@ import com.gijun.erpproject.Entity.Project;
 import com.gijun.erpproject.Enum.ProjectStatus;
 import com.gijun.erpproject.Enum.TaskStatus;
 import com.gijun.erpproject.Service.ProjectAnalyticsService;
-import com.gijun.erpproject.dto.ProjectResponseDTO;
+import com.gijun.erpproject.Response.ProjectResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
