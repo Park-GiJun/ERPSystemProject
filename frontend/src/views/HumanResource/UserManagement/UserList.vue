@@ -128,32 +128,8 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { Plus, Power, Key } from 'lucide-vue-next'
-import axios from '@/plugins/axios'
+import { userManagementApi } from '@/api/userManagement'
 
-/**
- * @typedef {Object} Member
- * @property {number} id
- * @property {string} username
- * @property {string} name
- * @property {string} email
- * @property {string} role
- * @property {boolean} enabled
- * @property {string|null} lastLoginAt
- * @property {string} createdAt
- * @property {string} updatedAt
- */
-
-/**
- * @typedef {Object} PageResponse
- * @property {Member[]} content
- * @property {number} totalElements
- * @property {number} totalPages
- * @property {number} number
- * @property {boolean} first
- * @property {boolean} last
- */
-
-/** @type {import('vue').Ref<Member[]>} */
 const users = ref([])
 const isLoading = ref(false)
 const error = ref(null)
@@ -174,11 +150,9 @@ const displayedPages = computed(() => {
   const totalPagesNum = totalPages.value
   const current = currentPage.value
 
-  // 최대 5개의 페이지 번호만 표시
   let start = Math.max(0, current - 2)
   let end = Math.min(totalPagesNum - 1, start + 4)
 
-  // 마지막 페이지가 최대값보다 작다면 시작 위치를 조정
   if (end - start < 4) {
     start = Math.max(0, end - 4)
   }
@@ -190,77 +164,54 @@ const displayedPages = computed(() => {
   return pages
 })
 
-/**
- * 사용자 목록을 가져옵니다
- * @param {number} [page=0] 페이지 번호
- */
 const fetchUsers = async (page = 0) => {
   isLoading.value = true
   error.value = null
 
   try {
-    const response = await axios.get('/api/members', {
-      params: {
-        page,
-        size: pageSize.value
-      }
-    })
-
-    users.value = response.data.content
-    totalElements.value = response.data.totalElements
-    totalPages.value = response.data.totalPages
-    currentPage.value = response.data.number
+    const response = await userManagementApi.getUsers(page, pageSize.value)
+    users.value = response.content
+    totalElements.value = response.totalElements
+    totalPages.value = response.totalPages
+    currentPage.value = response.number
   } catch (err) {
-    console.error('Failed to fetch users:', err)
-    error.value = 'Failed to load users. Please try again later.'
+    error.value = err.message
   } finally {
     isLoading.value = false
   }
 }
 
-// 페이지 변경 처리
 const changePage = (page) => {
   if (page >= 0 && page < totalPages.value) {
     fetchUsers(page)
   }
 }
 
-// 사용자 상태 토글
 const toggleUserStatus = async (user) => {
   try {
-    const response = await axios.patch(`/api/members/${user.id}/toggle-status`, null, {
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
-      }
-    });
-    if (response.status === 200) {
-      await fetchUsers(currentPage.value);
-    }
+    await userManagementApi.toggleUserStatus(user.id)
+    await fetchUsers(currentPage.value)
   } catch (error) {
-    console.error('Failed to toggle user status:', error);
+    alert(error.message)
   }
-};
+}
 
-// 비밀번호 초기화
 const resetPassword = async (user) => {
   if (!confirm(`Are you sure you want to reset the password for ${user.username}?`)) return
 
   try {
-    await axios.post(`/api/members/${user.id}/reset-password`)  // POST 메서드 사용
+    await userManagementApi.resetPassword(user.id)
     alert('Password has been reset successfully')
   } catch (error) {
-    console.error('Failed to reset password:', error)
-    alert('Failed to reset password')
+    alert(error.message)
   }
 }
 
-// 날짜 포맷팅
 const formatDate = (date) => {
   if (!date) return 'Never'
   return new Date(date).toLocaleString()
 }
 
-// Role 포맷팅
 const formatRole = (role) => {
   return role === 'ROLE_ADMIN' ? 'Admin' : 'User'
 }
