@@ -64,6 +64,28 @@
             </button>
           </div>
         </form>
+
+        <!-- 회원가입 섹션 추가 -->
+        <div class="mt-6">
+          <div class="relative">
+            <div class="absolute inset-0 flex items-center">
+              <div class="w-full border-t border-gray-300"></div>
+            </div>
+            <div class="relative flex justify-center text-sm">
+              <span class="px-2 bg-white text-gray-500">또는</span>
+            </div>
+          </div>
+
+          <div class="mt-6">
+            <button
+              type="button"
+              @click="goToRegister"
+              class="btn-secondary"
+            >
+              새 계정 만들기
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -71,8 +93,10 @@
 
 <script setup>
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'  // 추가
 import { useAuthStore } from '@/stores/auth'
 
+const router = useRouter()  // 추가
 const authStore = useAuthStore()
 
 const username = ref('')
@@ -95,6 +119,11 @@ const handleLogin = async () => {
     isLoading.value = false
   }
 }
+
+// 회원가입 페이지로 이동하는 함수 추가
+const goToRegister = () => {
+  router.push('/register')  // 경로를 /register로 변경
+}
 </script>
 
 <style scoped>
@@ -104,5 +133,10 @@ const handleLogin = async () => {
 
 .btn-primary {
   @apply flex w-full justify-center rounded-md border border-transparent bg-blue-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+/* 회원가입 버튼 스타일 추가 */
+.btn-secondary {
+  @apply flex w-full justify-center rounded-md border border-gray-300 bg-white py-2 px-4 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
 }
 </style>

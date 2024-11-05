@@ -11,6 +11,13 @@ const routes = [
     meta: { requiresAuth: false }
   },
   {
+    // 회원가입 라우트 추가
+    path: '/register',
+    name: 'Register',
+    component: () => import('@/views/HumanResource/UserManagement/Register.vue'),
+    meta: { requiresAuth: false }
+  },
+  {
     path: '/',
     component: MainLayout,
     meta: { requiresAuth: true },
@@ -42,7 +49,22 @@ const routes = [
             path: 'users/register',
             name: 'UserRegister',
             component: () => import('@/views/HumanResource/UserManagement/Register.vue')
-          }
+          },
+          // {
+          //   path: 'attendance',
+          //   name: 'Attendance',
+          //   component: () => import('@/views/HumanResource/Attendance/AttendanceList.vue')
+          // },
+          // {
+          //   path: 'dashboard',
+          //   name: 'HRDashboard',
+          //   component: () => import('@/views/HumanResource/Dashboard/HRDashboard.vue')
+          // },
+          // {
+          //   path: 'settings',
+          //   name: 'HRSettings',
+          //   component: () => import('@/views/HumanResource/Settings/HRSettings.vue')
+          // }
         ]
       },
       // Project Routes
@@ -108,7 +130,7 @@ router.beforeEach(async (to, from, next) => {
 
   if (requiresAuth && !isAuthenticated) {
     next('/login')
-  } else if (to.path === '/login' && isAuthenticated) {
+  } else if ((to.path === '/login' || to.path === '/register') && isAuthenticated) {
     next('/dashboard')
   } else {
     next()

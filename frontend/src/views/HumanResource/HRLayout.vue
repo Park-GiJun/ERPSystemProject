@@ -1,53 +1,86 @@
+<!-- src/views/HumanResource/HRLayout.vue -->
 <template>
-  <div class="p-8 bg-gray-50 min-h-screen">
-    <!-- HR Section Header -->
-    <div class="mb-8">
-      <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Human Resources</h1>
-      <!-- Sub Navigation -->
-      <nav class="mt-6">
-        <ul class="flex space-x-6 border-b border-gray-300">
-          <li v-for="item in menuItems" :key="item.path" class="pb-3">
+  <div class="h-full p-8">
+    <!-- Header Section -->
+    <div class="mb-6">
+      <h1 class="text-2xl font-bold text-gray-900">Human Resources</h1>
+      <div class="flex items-center justify-between mt-4">
+        <div class="flex items-center space-x-4">
+          <!-- Navigation Tabs -->
+          <nav class="flex space-x-4">
             <router-link
-              :to="item.path"
-              class="relative px-4 py-2 text-base font-medium transition-colors duration-300"
+              v-for="tab in navigationTabs"
+              :key="tab.name"
+              :to="tab.path"
+              class="px-3 py-2 text-sm font-medium rounded-md"
               :class="[
-                isActive(item.path)
-                  ? 'text-blue-600 font-semibold after:absolute after:-bottom-[1px] after:left-1/2 after:-translate-x-1/2 after:w-full after:h-[2px] after:bg-blue-600'
-                  : 'text-gray-500 hover:text-blue-500'
+                isCurrentPath(tab.path)
+                  ? 'bg-blue-100 text-blue-700'
+                  : 'text-gray-500 hover:text-gray-700'
               ]"
             >
-              {{ item.name }}
+              <component :is="tab.icon" class="w-5 h-5 mr-2 inline-block" />
+              {{ tab.name }}
             </router-link>
-          </li>
-        </ul>
-      </nav>
+          </nav>
+        </div>
+        <!-- Action Buttons -->
+        <div class="flex items-center space-x-3">
+          <router-link
+            v-if="isCurrentPath('/hr/users')"
+            to="/hr/users/register"
+            class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
+          >
+            <UserPlus class="w-5 h-5 mr-2" />
+            Register User
+          </router-link>
+        </div>
+      </div>
     </div>
 
-    <!-- Sub-route content -->
-    <div class="bg-white shadow-sm rounded-lg p-6">
+    <!-- Main Content Area -->
+    <div class="bg-white rounded-lg shadow">
       <router-view></router-view>
     </div>
   </div>
 </template>
 
 <script setup>
-import { useRoute } from 'vue-router'
+import { useRoute } from 'vue-router';
+import {
+  Users,
+  UserPlus,
+  ClipboardList,
+  Settings,
+  BarChart3
+} from 'lucide-vue-next';
 
-const route = useRoute()
+const route = useRoute();
 
-const menuItems = [
+const navigationTabs = [
   {
     name: 'User List',
-    path: '/hr/users'
+    path: '/hr/users',
+    icon: Users,
   },
   {
-    name: 'Register User',
-    path: '/hr/users/register'
+    name: 'Attendance',
+    path: '/hr/attendance',
+    icon: ClipboardList,
   },
-  // 다른 HR 관련 메뉴 항목들을 여기에 추가할 수 있습니다
-]
+  {
+    name: 'HR Dashboard',
+    path: '/hr/dashboard',
+    icon: BarChart3,
+  },
+  {
+    name: 'Settings',
+    path: '/hr/settings',
+    icon: Settings,
+  }
+];
 
-const isActive = (path) => {
-  return route.path === path // 정확히 일치하는 경로를 활성화 상태로 설정
-}
+const isCurrentPath = (path) => {
+  return route.path === path;
+};
 </script>
