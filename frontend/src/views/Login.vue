@@ -8,6 +8,9 @@
       <p class="mt-2 text-center text-sm text-gray-600">
         로그인하여 시스템에 접속하세요
       </p>
+      <p class="mt-2 text-center text-sm text-gray-600">
+        admin // admin1234!
+      </p>
     </div>
 
     <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">

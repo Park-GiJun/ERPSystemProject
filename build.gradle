@@ -44,6 +44,7 @@ dependencies {
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
 
     // Redis
+    implementation 'io.netty:netty-all:4.1.79.Final'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
     // Validation
@@ -54,10 +55,9 @@ dependencies {
 }
 
 bootJar {
-    manifest {
-        attributes(
-                'Spring-Profile': project.hasProperty('profile') ? project.property('profile') : 'dev'
-        )
+    dependsOn processResources
+    doFirst {
+        println "Generating JAR with profile: ${project.hasProperty('profile') ? project.property('profile') : 'prod'}"
     }
 }
 
@@ -75,14 +75,14 @@ node {
     nodeProjectDir = file("${project.projectDir}/frontend")
 }
 
-// 기존 npmInstall 태스크 설정 수정
+// 기본 npm 설치 태스크 설정
 tasks.named('npmInstall') {
     workingDir = file("${project.projectDir}/frontend")
     outputs.dir("${project.projectDir}/frontend/node_modules")
     outputs.file("${project.projectDir}/frontend/package-lock.json")
 }
 
-// 환경별 npm 빌드 태스크
+// 개발용 프론트엔드 빌드 태스크
 tasks.register('npmBuildDev', NpmTask) {
     dependsOn npmInstall
     args = ['run', 'build:dev']
@@ -96,19 +96,19 @@ tasks.register('npmBuildDev', NpmTask) {
     }
 }
 
-def npmBuildTask = tasks.register('npmBuild', NpmTask) {
+// 프로덕션용 프론트엔드 빌드 태스크
+tasks.register('npmBuildProd', NpmTask) {
     dependsOn npmInstall
-    doFirst {
-        def buildMode = project.hasProperty('profile') && project.property('profile') == 'prod' ? 'build:prod' : 'build:dev'
-        println "Building frontend for ${buildMode} mode"
-    }
-    args = ['run', project.hasProperty('profile') && project.property('profile') == 'prod' ? 'build:prod' : 'build:dev']
+    args = ['run', 'build:prod']
     workingDir = file("${project.projectDir}/frontend")
+    doFirst {
+        println "Building frontend in production mode..."
+    }
 }
 
-// 기존 copyFrontendBuild 태스크 수정
+// 프론트엔드 빌드 결과물을 백엔드 리소스 디렉토리로 복사
 tasks.register('copyFrontendBuild', Copy) {
-    dependsOn npmBuildTask
+    dependsOn npmBuildProd  // npmBuildProd가 완료된 후 실행
     from("${project.projectDir}/frontend/dist")
     into("${buildDir}/resources/main/static")
     doFirst {
@@ -116,23 +116,36 @@ tasks.register('copyFrontendBuild', Copy) {
     }
 }
 
-// 프로덕션 빌드 전용 태스크
-tasks.register('buildProd') {
+// 백엔드 프로덕션 빌드 태스크
+tasks.register('buildBackendProd') {
     dependsOn clean
-    dependsOn bootJar
+    dependsOn copyFrontendBuild
     doFirst {
-        println "Building for production..."
+        println "Building backend for production..."
         project.ext.set("profile", "prod")
+        System.setProperty("spring.profiles.active", "prod")
+    }
+    finalizedBy bootJar
+}
+
+// 전체 애플리케이션 프로덕션 빌드 태스크
+tasks.register('buildFullProd') {
+    dependsOn npmBuildProd  // 프론트엔드 빌드
+    dependsOn buildBackendProd  // 백엔드 빌드
+    doFirst {
+        println "Building full application in production mode..."
     }
 }
 
 // 개발 빌드 전용 태스크
 tasks.register('buildDev') {
     dependsOn clean
-    dependsOn bootJar
+    dependsOn npmBuildDev
+    finalizedBy bootJar
     doFirst {
         println "Building for development..."
         project.ext.set("profile", "dev")
+        System.setProperty("spring.profiles.active", "dev")
     }
 }
 
@@ -145,7 +158,7 @@ tasks.register('npmDev', NpmTask) {
     }
 }
 
-// 빌드 로그 메시지 추가
+// 빌드 로그 메시지
 gradle.taskGraph.whenReady { graph ->
     println "==== Build Information ===="
     println "Profile: ${project.hasProperty('profile') ? project.property('profile') : 'dev'}"
@@ -162,14 +175,6 @@ tasks.named('clean') {
 
 tasks.named('processResources') {
     dependsOn copyFrontendBuild
-}
-
-tasks.named('bootJar') {
-    dependsOn processResources
-}
-
-tasks.named('bootRun') {
-    dependsOn processResources
 }
 
 tasks.named('test') {
