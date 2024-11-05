@@ -11,6 +11,7 @@ import com.gijun.erpproject.Login.Repository.LoginHistoryRepository;
 import com.gijun.erpproject.Request.LoginRequest;
 import com.gijun.erpproject.Response.TokenResponse;
 import com.gijun.erpproject.Repository.MemberRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -120,5 +121,29 @@ public class AuthService {
                 .build();
 
         loginHistoryRepository.save(history);
+    }
+
+    public void logout(String token, HttpServletRequest request) {
+        String username = jwtTokenProvider.getUsername(token);
+        Member member = memberRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        // 클라이언트 정보 가져오기
+        String ipAddress = request.getRemoteAddr();
+        String userAgent = request.getHeader("User-Agent");
+
+        // 로그아웃 이력 생성
+        LoginHistory logoutHistory = LoginHistory.builder()
+                .member(member)
+                .ipAddress(ipAddress != null ? ipAddress : "0.0.0.0")
+                .userAgent(userAgent != null ? userAgent : "Unknown")
+                .status(LoginStatus.LOGOUT)
+                .build();
+
+        // 로그아웃 이력 저장
+        loginHistoryRepository.save(logoutHistory);
+
+        // 토큰 무효화
+        jwtTokenProvider.invalidateToken(username);
     }
 }

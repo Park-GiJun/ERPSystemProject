@@ -3,7 +3,6 @@ package com.gijun.erpproject.Entity.Login;
 import com.gijun.erpproject.Entity.Member;
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.security.core.userdetails.User;
 
 @Entity
 @Getter
@@ -26,7 +25,7 @@ public class LoginHistory extends BaseTimeEntity {
     private String userAgent;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, length = 10)  // 명시적 길이 지정
     private LoginStatus status;
 
     @Column

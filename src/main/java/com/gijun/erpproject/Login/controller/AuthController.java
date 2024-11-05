@@ -35,13 +35,24 @@ public class AuthController {
         return ResponseEntity.ok(token);
     }
 
-//    @Operation(summary = "로그아웃", description = "현재 사용자를 로그아웃합니다.")
-//    @PostMapping("/logout")
-//    public ResponseEntity<Void> logout(HttpServletRequest request) {
-//        String token = resolveToken(request);
-//        authService.logout(token);
-//        return ResponseEntity.ok().build();
-//    }
+    @Operation(summary = "로그아웃", description = "현재 사용자를 로그아웃합니다.")
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(HttpServletRequest request) {
+        String token = resolveToken(request);
+        if (token != null) {
+            authService.logout(token, request);  // request 객체 전달
+            return ResponseEntity.ok().build();
+        }
+        return ResponseEntity.badRequest().build();
+    }
+
+    private String resolveToken(HttpServletRequest request) {
+        String bearerToken = request.getHeader("Authorization");
+        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+            return bearerToken.substring(7);
+        }
+        return null;
+    }
 
     private String getClientIp(HttpServletRequest request) {
         String ip = request.getHeader("X-Forwarded-For");
@@ -69,13 +80,5 @@ public class AuthController {
         } catch (Exception e) {
             return ResponseEntity.ok(new TokenValidationResponse(false, null));
         }
-    }
-
-    private String resolveToken(HttpServletRequest request) {
-        String bearerToken = request.getHeader("Authorization");
-        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7);
-        }
-        return null;
     }
 }

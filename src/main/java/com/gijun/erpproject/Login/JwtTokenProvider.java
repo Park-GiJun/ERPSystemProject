@@ -96,4 +96,6 @@ public class JwtTokenProvider {
     public void invalidateToken(String username) {
         redisTemplate.delete("JWT:" + username);
     }
+
+
 }
