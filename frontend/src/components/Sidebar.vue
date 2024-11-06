@@ -102,12 +102,19 @@
                 >
                   User List
                 </router-link>
+<!--                <router-link-->
+<!--                  to="/hr/users/register"-->
+<!--                  class="flex items-center pl-12 py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"-->
+<!--                  :class="{ 'bg-gray-800 text-white': isCurrentRoute('/hr/users/register') }"-->
+<!--                >-->
+<!--                  Register User-->
+<!--                </router-link>-->
                 <router-link
-                  to="/hr/users/register"
+                  to="/hr/users/teamList"
                   class="flex items-center pl-12 py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
-                  :class="{ 'bg-gray-800 text-white': isCurrentRoute('/hr/users/register') }"
+                  :class="{ 'bg-gray-800 text-white': isCurrentRoute('/hr/users/teamList') }"
                 >
-                  Register User
+                  Team List
                 </router-link>
               </div>
             </div>

@@ -1,18 +1,6 @@
 <!-- src/views/HumanResource/UserManagement/UserList.vue -->
 <template>
   <div>
-    <!-- Header with Actions -->
-    <div class="flex justify-between items-center mb-6">
-      <h2 class="text-lg font-semibold text-gray-900">User List</h2>
-      <router-link
-        to="/hr/users/register"
-        class="btn-primary"
-      >
-        <Plus class="w-5 h-5 mr-2" />
-        Add User
-      </router-link>
-    </div>
-
     <!-- Loading State -->
     <div v-if="isLoading" class="flex justify-center items-center min-h-[400px]">
       <div class="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>

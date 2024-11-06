@@ -11,6 +11,9 @@
       <p class="mt-2 text-center text-sm text-gray-600">
         admin // admin1234!
       </p>
+      <p class="mt-2 text-center text-sm text-gray-600">
+        기본 비밀번호 password1234
+      </p>
     </div>
 
     <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
@@ -96,10 +99,10 @@
 
 <script setup>
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'  // 추가
+import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 
-const router = useRouter()  // 추가
+const router = useRouter()
 const authStore = useAuthStore()
 
 const username = ref('')
@@ -125,7 +128,7 @@ const handleLogin = async () => {
 
 // 회원가입 페이지로 이동하는 함수 추가
 const goToRegister = () => {
-  router.push('/register')  // 경로를 /register로 변경
+  router.push('/register')
 }
 </script>
 

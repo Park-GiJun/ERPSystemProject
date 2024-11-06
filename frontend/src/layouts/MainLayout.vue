@@ -9,6 +9,5 @@
 </template>
 
 <script setup>
-// 명시적 import
 import Sidebar from '@/components/Sidebar.vue'
 </script>

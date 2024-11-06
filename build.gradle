@@ -56,15 +56,20 @@ dependencies {
 
 bootJar {
     dependsOn processResources
+    // bootJar는 항상 production 프로필 사용
     doFirst {
-        println "Generating JAR with profile: ${project.hasProperty('profile') ? project.property('profile') : 'prod'}"
+        println "Generating production JAR..."
+        System.setProperty("spring.profiles.active", "prod")
     }
 }
 
 bootRun {
-    systemProperty "spring.profiles.active", System.getProperty("spring.profiles.active", "dev")
+    // bootRun은 항상 development 프로필 사용
+    systemProperty "spring.profiles.active", "dev"
+    jvmArgs = ["-Dspring.profiles.active=dev"]
+
     doFirst {
-        println "Running bootRun with profile: ${System.getProperty("spring.profiles.active", "dev")}"
+        println "Running application in development mode..."
     }
 }
 
@@ -75,7 +80,7 @@ node {
     nodeProjectDir = file("${project.projectDir}/frontend")
 }
 
-// 기본 npm 설치 태스크 설정
+// npm 태스크들
 tasks.named('npmInstall') {
     workingDir = file("${project.projectDir}/frontend")
     outputs.dir("${project.projectDir}/frontend/node_modules")
@@ -101,18 +106,51 @@ tasks.register('npmBuildProd', NpmTask) {
     dependsOn npmInstall
     args = ['run', 'build:prod']
     workingDir = file("${project.projectDir}/frontend")
+
     doFirst {
+        // 빌드 전 dist 디렉토리 삭제
+        delete "${project.projectDir}/frontend/dist"
         println "Building frontend in production mode..."
     }
 }
 
-// 프론트엔드 빌드 결과물을 백엔드 리소스 디렉토리로 복사
-tasks.register('copyFrontendBuild', Copy) {
-    dependsOn npmBuildProd  // npmBuildProd가 완료된 후 실행
-    from("${project.projectDir}/frontend/dist")
-    into("${buildDir}/resources/main/static")
+// 개발 서버 실행 태스크
+tasks.register('npmDev', NpmTask) {
+    args = ['run', 'dev']
+    workingDir = file("${project.projectDir}/frontend")
+    environment = [
+            'NODE_ENV': 'development'
+    ]
     doFirst {
+        println "Starting npm development server in development mode"
+    }
+}
+
+// 프론트엔드 빌드 복사 태스크
+tasks.register('copyFrontendBuild', Copy) {
+    dependsOn npmBuildProd
+
+    doFirst {
+        // 기존 static 디렉토리 삭제
+        delete "${buildDir}/resources/main/static"
+
+        // dist 디렉토리가 없으면 생성
+        def distDir = file("${project.projectDir}/frontend/dist")
+        if (!distDir.exists()) {
+            distDir.mkdirs()
+        }
+
         println "Copying frontend build to resources/static directory"
+    }
+
+    from("${project.projectDir}/frontend/dist") {
+        includeEmptyDirs = false
+    }
+    into("${buildDir}/resources/main/static")
+
+    onlyIf {
+        file("${project.projectDir}/frontend/dist").exists() &&
+                file("${project.projectDir}/frontend/dist").list()?.length > 0
     }
 }
 
@@ -128,37 +166,34 @@ tasks.register('buildBackendProd') {
     finalizedBy bootJar
 }
 
-// 전체 애플리케이션 프로덕션 빌드 태스크
-tasks.register('buildFullProd') {
-    dependsOn npmBuildProd  // 프론트엔드 빌드
-    dependsOn buildBackendProd  // 백엔드 빌드
-    doFirst {
-        println "Building full application in production mode..."
-    }
-}
-
-// 개발 빌드 전용 태스크
+// 개발 환경용 빌드 태스크
 tasks.register('buildDev') {
     dependsOn clean
     dependsOn npmBuildDev
     finalizedBy bootJar
     doFirst {
         println "Building for development..."
-        project.ext.set("profile", "dev")
         System.setProperty("spring.profiles.active", "dev")
     }
 }
 
-// npm 개발 서버 실행 태스크
-tasks.register('npmDev', NpmTask) {
-    args = ['run', 'dev']
-    workingDir = file("${project.projectDir}/frontend")
+// 개발 환경 실행 태스크
+tasks.register('devRun') {
+    group = 'application'
+    description = 'Runs the application in development mode'
+
     doFirst {
-        println "Starting npm development server"
+        System.setProperty("spring.profiles.active", "dev")
+        println "Starting application in development mode..."
     }
+
+    dependsOn bootRun
+    dependsOn npmDev
+
+    bootRun.mustRunAfter npmDev
 }
 
-// 빌드 로그 메시지
+// 빌드 정보 출력
 gradle.taskGraph.whenReady { graph ->
     println "==== Build Information ===="
     println "Profile: ${project.hasProperty('profile') ? project.property('profile') : 'dev'}"
@@ -168,15 +203,21 @@ gradle.taskGraph.whenReady { graph ->
     println "==========================="
 }
 
+// Clean 태스크
 tasks.named('clean') {
     delete "${buildDir}/resources/main/static"
     delete "${project.projectDir}/frontend/dist"
 }
 
+// Resource 처리 태스크
 tasks.named('processResources') {
-    dependsOn copyFrontendBuild
+    // 프로덕션 빌드일 때만 copyFrontendBuild 실행
+    if (System.getProperty("spring.profiles.active") != "dev") {
+        dependsOn copyFrontendBuild
+    }
 }
 
+// 테스트 태스크
 tasks.named('test') {
     useJUnitPlatform()
 }

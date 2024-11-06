@@ -97,10 +97,12 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/api/projects/**").hasAnyRole("ADMIN", "USER")
                         .requestMatchers(HttpMethod.DELETE, "/api/projects/**").hasAnyRole("ADMIN")
                         .requestMatchers("/api/memebers").permitAll()
+                        .requestMatchers("/api/teams").permitAll()
                         // 관리자 전용
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/members/**").hasAnyRole("ADMIN", "USER")
-                        .requestMatchers("/api/members/**").hasRole("ADMIN")
+                        .requestMatchers("/api/members/**").hasAnyRole("ADMIN", "USER")
+                        .requestMatchers("/api/teams/**").hasAnyRole("ADMIN", "USER")
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session

@@ -50,6 +50,11 @@ const routes = [
             name: 'UserRegister',
             component: () => import('@/views/HumanResource/UserManagement/Register.vue')
           },
+          {
+            path: 'users/teamList',
+            name : 'TeamList',
+            component: () => import('@/views/HumanResource/Team/TeamList.vue')
+          }
           // {
           //   path: 'attendance',
           //   name: 'Attendance',
